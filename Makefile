@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 VERSION = 4
 PATCHLEVEL = 19
-SUBLEVEL = 300
+SUBLEVEL = 325
 EXTRAVERSION =
 NAME = "People's Front"
 
@@ -474,9 +474,7 @@ CFLAGS_KERNEL +=   -DOPLUS_FEATURE_POWER_EFFICIENCY
 CFLAGS_MODULE +=   -DOPLUS_FEATURE_POWER_EFFICIENCY
 # endif
 
-#ifdef COLOROS_EDIT
 -include OplusKernelEnvConfig.mk
-#endif // COLOROS_EDIT
 
 #ifdef VENDOR_EDIT
 ifneq (,$(findstring Aging,$(SPECIAL_VERSION)))
@@ -534,7 +532,7 @@ endif
 export OPLUS_MEMLEAK_DETECT
 #endif
 
-export ARCH SRCARCH CONFIG_SHELL HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE LD CC
+export ARCH SRCARCH CONFIG_SHELL HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM STRIP OBJCOPY OBJDUMP OBJSIZE READELF KBUILD_HOSTLDFLAGS KBUILD_HOSTLDLIBS
 export MAKE LEX YACC AWK GENKSYMS INSTALLKERNEL PERL PYTHON PYTHON2 PYTHON3 UTS_MACHINE
 export HOSTCXX KBUILD_HOSTCXXFLAGS LDFLAGS_MODULE CHECK CHECKFLAGS
@@ -596,8 +594,6 @@ endif
 ifneq ($(LLVM_IAS),1)
 CLANG_FLAGS	+= -no-integrated-as
 endif
-CLANG_FLAGS	+= $(call cc-option, -Wno-misleading-indentation)
-CLANG_FLAGS	+= $(call cc-option, -Wno-bool-operation)
 CLANG_FLAGS	+= -Werror=unknown-warning-option
 CLANG_FLAGS	+= $(call cc-option, -Wno-unsequenced)
 KBUILD_CFLAGS	+= $(CLANG_FLAGS)
@@ -839,10 +835,6 @@ KBUILD_CFLAGS += $(call cc-option, -mllvm -disable-struct-const-merge)
 
 # Quiet clang warning: comparison of unsigned expression < 0 is always false
 KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
-# CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the
-# source of a reference will be _MergedGlobals and not on of the whitelisted names.
-# See modpost pattern 2
-KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
 KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
 endif
 
