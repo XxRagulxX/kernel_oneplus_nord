@@ -2493,6 +2493,11 @@ static int netvsc_netdev_event(struct notifier_block *this,
 		return NOTIFY_DONE;
 	}
 
+	if (event_dev->netdev_ops == &device_ops && event == NETDEV_REGISTER) {
+		netvsc_event_set_vf_ns(event_dev);
+		return NOTIFY_DONE;
+	}
+
 	ret = check_dev_is_matching_vf(event_dev);
 	if (ret != 0)
 		return NOTIFY_DONE;

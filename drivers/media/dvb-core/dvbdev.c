@@ -538,6 +538,26 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
 		return ret;
 	}
 #endif
+	dvbdev->minor = minor;
+	dvb_minors[minor] = dvb_device_get(dvbdev);
+	up_write(&minor_rwsem);
+	ret = dvb_register_media_device(dvbdev, type, minor, demux_sink_pads);
+	if (ret) {
+		pr_err("%s: dvb_register_media_device failed to create the mediagraph\n",
+		      __func__);
+		if (new_node) {
+			list_del (&new_node->list_head);
+			kfree(dvbdevfops);
+			kfree(new_node);
+		}
+		dvb_media_device_free(dvbdev);
+		list_del(&dvbdev->list_head);
+		kfree(dvbdev);
+		*pdvbdev = NULL;
+		mutex_unlock(&dvbdev_register_lock);
+		return ret;
+	}
+#endif
 
 	dvbdev->minor = minor;
 	dvb_minors[minor] = dvb_device_get(dvbdev);
